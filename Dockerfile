@@ -6,6 +6,9 @@ WORKDIR /app
 COPY server ./server/
 COPY bungee ./bungee/
 
+# Create EULA file
+RUN echo "eula=true" > server/eula.txt
+
 # Create a script to run both processes
 COPY start.sh .
 RUN chmod +x start.sh
