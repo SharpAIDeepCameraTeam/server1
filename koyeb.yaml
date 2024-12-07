@@ -15,3 +15,11 @@ service:
   env:
     - name: JAVA_OPTS
       value: "-Xmx450M"
+  healthCheck:
+    port: 8081
+    path: /
+    initialDelay: 30s
+    interval: 15s
+    timeout: 5s
+    successThreshold: 1
+    failureThreshold: 3
