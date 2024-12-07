@@ -7,7 +7,7 @@ service:
     - port: 25565
       protocol: tcp
   routes:
-    - path: /
+    - path: /server
       port: 8081
   scaling:
     min: 1
@@ -17,7 +17,7 @@ service:
       value: "-Xmx450M"
   healthCheck:
     port: 8081
-    path: /
+    path: /server
     initialDelay: 30s
     interval: 15s
     timeout: 5s
