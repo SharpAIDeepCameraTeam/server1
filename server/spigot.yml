@@ -68,7 +68,7 @@ world-settings:
   default:
     verbose: true
     anti-xray:
-      enabled: true
+      enabled: false
       engine-mode: 1
       hide-blocks:
       - 14
