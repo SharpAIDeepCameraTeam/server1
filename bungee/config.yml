@@ -28,7 +28,7 @@ permissions:
 log_pings: true
 connection_throttle_limit: 3
 server_connect_timeout: 30000
-timeout: 60000
+timeout: 30000
 player_limit: -1
 prevent_proxy_connections: false
 ip_forward: true
