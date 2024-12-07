@@ -1,0 +1,17 @@
+name: eaglercraft
+service:
+  name: eaglercraft
+  ports:
+    - port: 8081
+      protocol: http
+    - port: 25565
+      protocol: tcp
+  routes:
+    - path: /
+      port: 8081
+  scaling:
+    min: 1
+    max: 1
+  env:
+    - name: JAVA_OPTS
+      value: "-Xmx450M"
