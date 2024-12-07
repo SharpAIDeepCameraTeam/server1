@@ -9,7 +9,7 @@ listeners:
   priorities:
   - lobby
   bind_local_address: false
-  host: 0.0.0.0:25565
+  host: 0.0.0.0:8081
   max_players: 20
   tab_size: 60
   force_default_server: true
