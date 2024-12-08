@@ -1,20 +1,28 @@
-FROM eclipse-temurin:17-jre-jammy
+FROM openjdk:8-jdk-slim
 
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y nginx && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
 # Copy server files
-COPY server ./server/
-COPY bungee ./bungee/
+COPY . .
 
-# Create EULA file
-RUN echo "eula=true" > server/eula.txt
+# Make scripts executable
+RUN chmod +x main.sh start.sh
 
-# Create a script to run both processes
-COPY start.sh .
-RUN chmod +x start.sh
+# Create necessary directories
+RUN mkdir -p /app/bungee /app/server
 
-# Expose necessary ports
-EXPOSE 8081
-EXPOSE 25565
+# Expose ports
+EXPOSE 80 25565 25566 8081
 
+# Set environment variable for Java
+ENV JAVA_OPTS="-Xmx1G"
+
+# Start command
 CMD ["./start.sh"]

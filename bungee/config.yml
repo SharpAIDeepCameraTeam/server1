@@ -44,5 +44,5 @@ disabled_commands:
 servers:
   lobby:
     motd: '&1EaglercraftX Game Server'
-    address: localhost:25566
+    address: minecraft:25566
     restricted: false
