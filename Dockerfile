@@ -23,7 +23,7 @@ RUN mkdir -p /app/bungee /app/server && \
 EXPOSE 80 25565 25566 25567
 
 # Set environment variables
-ENV JAVA_OPTS="-Xmx1G" \
+ENV JAVA_OPTS="-Xmx512M" \
     EAGLERXBUNGEE_STFU="true"
 
 # Start command
