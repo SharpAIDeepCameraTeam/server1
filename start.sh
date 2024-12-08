@@ -3,9 +3,12 @@
 # Start Nginx
 nginx
 
-# Start Minecraft server in the background
+# Ensure EULA is accepted
 cd /app/server
-java -Xmx512M -jar server.jar nogui &
+echo "eula=true" > eula.txt
+
+# Start Minecraft server in the background
+java -Xmx1024M -Xms1024M -jar server.jar nogui &
 
 # Wait a bit for Minecraft server to start
 sleep 10

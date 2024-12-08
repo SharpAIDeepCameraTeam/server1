@@ -20,10 +20,11 @@ RUN mkdir -p /app/bungee /app/server && \
     echo "eula=true" > /app/server/eula.txt
 
 # Expose ports
-EXPOSE 80 25565 25566 8081
+EXPOSE 80 25565 25566 25567
 
-# Set environment variable for Java
-ENV JAVA_OPTS="-Xmx1G"
+# Set environment variables
+ENV JAVA_OPTS="-Xmx1G" \
+    EAGLERXBUNGEE_STFU="true"
 
 # Start command
 CMD ["./start.sh"]
