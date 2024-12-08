@@ -15,8 +15,9 @@ COPY . .
 # Make scripts executable
 RUN chmod +x main.sh start.sh
 
-# Create necessary directories
-RUN mkdir -p /app/bungee /app/server
+# Create necessary directories and accept EULA
+RUN mkdir -p /app/bungee /app/server && \
+    echo "eula=true" > /app/server/eula.txt
 
 # Expose ports
 EXPOSE 80 25565 25566 8081
