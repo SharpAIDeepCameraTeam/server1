@@ -42,6 +42,7 @@ java -Xmx150M -Xms100M -XX:+UseG1GC -XX:G1HeapRegionSize=4M \
 BUNGEE_PID=$!
 
 # Wait for BungeeCord to start
+echo "Waiting for BungeeCord to initialize..."
 sleep 20
 
 # Verify BungeeCord is running
@@ -50,9 +51,13 @@ if ! kill -0 $BUNGEE_PID 2>/dev/null; then
     exit 1
 fi
 
+echo "BungeeCord started successfully"
+
 # Start Minecraft server with reduced memory
 cd /app/server
 echo "Starting Minecraft server..."
+echo "World generation will begin shortly..."
+
 java -Xmx300M -Xms200M -XX:+UseG1GC -XX:+ParallelRefProcEnabled \
     -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions \
     -XX:+DisableExplicitGC -XX:+AlwaysPreTouch \
@@ -64,12 +69,14 @@ java -Xmx300M -Xms200M -XX:+UseG1GC -XX:+ParallelRefProcEnabled \
     -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
     -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 \
     -Dcom.mojang.eula.agree=true \
+    -Dlog4j2.formatMsgNoLookups=true \
     -jar server.jar nogui &
 
 MC_PID=$!
 
-# Wait a bit for server to initialize
-sleep 30
+# Wait for world generation
+echo "Waiting for world generation to complete..."
+sleep 45
 
 # Verify Minecraft server is running
 if ! kill -0 $MC_PID 2>/dev/null; then
@@ -78,7 +85,9 @@ if ! kill -0 $MC_PID 2>/dev/null; then
     exit 1
 fi
 
-echo "Both servers started successfully"
+echo "Minecraft server started successfully"
+echo "World generation completed"
+echo "Both servers are now running"
 
 # Wait for both processes
 wait $BUNGEE_PID $MC_PID
