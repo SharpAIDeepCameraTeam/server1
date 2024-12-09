@@ -2,6 +2,8 @@ name: eaglercraft-server
 service:
   name: eaglercraft
   ports:
+    - port: 8081
+      protocol: tcp
     - port: 25565
       protocol: tcp
     - port: 25566
@@ -17,7 +19,7 @@ service:
     max: 1
   healthCheck:
     tcpSocket:
-      port: 25566
+      port: 8081
     initialDelaySeconds: 120
     periodSeconds: 30
     timeoutSeconds: 20
