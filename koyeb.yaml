@@ -19,11 +19,12 @@ service:
     max: 1
   healthCheck:
     tcpSocket:
-      port: 25566
-    initialDelaySeconds: 60
+      port: 25567
+    initialDelaySeconds: 120
     periodSeconds: 30
-    timeoutSeconds: 10
+    timeoutSeconds: 20
     successThreshold: 1
-    failureThreshold: 3
+    failureThreshold: 5
   docker:
-    command: ["./start.sh"]
+    image: openjdk:8-jre-slim
+    command: ["sh", "-c", "chmod +x /app/start.sh && /app/start.sh"]
