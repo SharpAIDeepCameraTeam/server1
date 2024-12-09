@@ -1,25 +1,29 @@
-name: eaglercraft
+name: eaglercraft-server
 service:
   name: eaglercraft
   ports:
-    - port: 8081
-      protocol: http
+    - port: 25567
+      protocol: tcp
+    - port: 25566
+      protocol: tcp
     - port: 25565
       protocol: tcp
-  routes:
-    - path: /server
-      port: 8081
-  scaling:
-    min: 1
-    max: 1
+  instance_type: micro
   env:
     - name: JAVA_OPTS
       value: "-Xmx450M"
+    - name: EAGLERXBUNGEE_STFU
+      value: "true"
+  scaling:
+    min: 1
+    max: 1
   healthCheck:
-    port: 8081
-    path: /server
-    initialDelay: 30s
-    interval: 15s
-    timeout: 5s
+    tcpSocket:
+      port: 25566
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 10
     successThreshold: 1
     failureThreshold: 3
+  docker:
+    command: ["./start.sh"]
