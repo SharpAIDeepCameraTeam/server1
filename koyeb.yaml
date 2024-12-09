@@ -11,7 +11,7 @@ service:
   instance_type: micro
   env:
     - name: JAVA_OPTS
-      value: "-Xmx450M"
+      value: "-Xmx300M"
     - name: EAGLERXBUNGEE_STFU
       value: "true"
   scaling:
@@ -20,7 +20,7 @@ service:
   healthCheck:
     tcpSocket:
       port: 8081
-    initialDelaySeconds: 120
+    initialDelaySeconds: 180
     periodSeconds: 30
     timeoutSeconds: 20
     successThreshold: 1

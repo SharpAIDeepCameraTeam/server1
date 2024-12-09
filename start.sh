@@ -32,10 +32,10 @@ fi
 cd /app/server
 echo "eula=true" > eula.txt
 
-# Start BungeeCord first
+# Start BungeeCord first with reduced memory
 cd /app/bungee
 echo "Starting BungeeCord..."
-java -Xmx200M -Xms100M -XX:+UseG1GC -XX:G1HeapRegionSize=4M \
+java -Xmx150M -Xms100M -XX:+UseG1GC -XX:G1HeapRegionSize=4M \
     -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled \
     -XX:+AlwaysPreTouch -jar bungee.jar &
 
@@ -50,19 +50,35 @@ if ! kill -0 $BUNGEE_PID 2>/dev/null; then
     exit 1
 fi
 
-# Start Minecraft server
+# Start Minecraft server with reduced memory
 cd /app/server
 echo "Starting Minecraft server..."
-java -Xmx450M -Xms256M -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 \
-    -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch \
-    -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M \
-    -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
-    -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 \
-    -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem \
-    -XX:MaxTenuringThreshold=1 -jar server.jar nogui &
+java -Xmx300M -Xms200M -XX:+UseG1GC -XX:+ParallelRefProcEnabled \
+    -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions \
+    -XX:+DisableExplicitGC -XX:+AlwaysPreTouch \
+    -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 \
+    -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 \
+    -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
+    -XX:InitiatingHeapOccupancyPercent=15 \
+    -XX:G1MixedGCLiveThresholdPercent=90 \
+    -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
+    -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 \
+    -Dcom.mojang.eula.agree=true \
+    -jar server.jar nogui &
 
 MC_PID=$!
 
+# Wait a bit for server to initialize
+sleep 30
+
+# Verify Minecraft server is running
+if ! kill -0 $MC_PID 2>/dev/null; then
+    echo "Error: Minecraft server failed to start"
+    cleanup
+    exit 1
+fi
+
+echo "Both servers started successfully"
+
 # Wait for both processes
-echo "Waiting for servers..."
 wait $BUNGEE_PID $MC_PID
