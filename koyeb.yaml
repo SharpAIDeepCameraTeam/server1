@@ -2,11 +2,9 @@ name: eaglercraft-server
 service:
   name: eaglercraft
   ports:
-    - port: 25567
+    - port: 25565
       protocol: tcp
     - port: 25566
-      protocol: tcp
-    - port: 25565
       protocol: tcp
   instance_type: micro
   env:
@@ -19,7 +17,7 @@ service:
     max: 1
   healthCheck:
     tcpSocket:
-      port: 25567
+      port: 25565
     initialDelaySeconds: 120
     periodSeconds: 30
     timeoutSeconds: 20
