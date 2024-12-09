@@ -17,6 +17,15 @@ trap cleanup SIGTERM SIGINT
 # Create necessary directories
 mkdir -p /app/server /app/bungee /app/logs
 
+# Pre-create world directories to speed up initialization
+mkdir -p /app/server/world
+mkdir -p /app/server/world/region
+mkdir -p /app/server/world/data
+mkdir -p /app/server/world_nether
+mkdir -p /app/server/world_nether/DIM-1
+mkdir -p /app/server/world_the_end
+mkdir -p /app/server/world_the_end/DIM1
+
 # Download server jar if not present
 if [ ! -f /app/server/server.jar ]; then
     echo "Downloading server.jar..."
@@ -35,15 +44,16 @@ echo "eula=true" > eula.txt
 # Start BungeeCord first with reduced memory
 cd /app/bungee
 echo "Starting BungeeCord..."
-java -Xmx150M -Xms100M -XX:+UseG1GC -XX:G1HeapRegionSize=4M \
+java -Xmx150M -Xms150M -XX:+UseG1GC -XX:G1HeapRegionSize=4M \
     -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled \
-    -XX:+AlwaysPreTouch -jar bungee.jar &
+    -XX:+AlwaysPreTouch -XX:+DisableExplicitGC \
+    -XX:MaxGCPauseMillis=100 -jar bungee.jar &
 
 BUNGEE_PID=$!
 
 # Wait for BungeeCord to start
 echo "Waiting for BungeeCord to initialize..."
-sleep 20
+sleep 10
 
 # Verify BungeeCord is running
 if ! kill -0 $BUNGEE_PID 2>/dev/null; then
@@ -53,30 +63,36 @@ fi
 
 echo "BungeeCord started successfully"
 
-# Start Minecraft server with reduced memory
+# Start Minecraft server with optimized memory settings
 cd /app/server
 echo "Starting Minecraft server..."
-echo "World generation will begin shortly..."
+echo "Initializing world generation..."
 
-java -Xmx300M -Xms200M -XX:+UseG1GC -XX:+ParallelRefProcEnabled \
-    -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions \
-    -XX:+DisableExplicitGC -XX:+AlwaysPreTouch \
-    -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 \
-    -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 \
-    -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
-    -XX:InitiatingHeapOccupancyPercent=15 \
+# Use more aggressive GC settings and pre-touch memory
+java -Xmx300M -Xms300M -XX:+UseG1GC \
+    -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=100 \
+    -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC \
+    -XX:+AlwaysPreTouch -XX:G1NewSizePercent=40 \
+    -XX:G1MaxNewSizePercent=50 -XX:G1HeapRegionSize=8M \
+    -XX:G1ReservePercent=15 -XX:G1HeapWastePercent=5 \
+    -XX:G1MixedGCCountTarget=4 \
+    -XX:InitiatingHeapOccupancyPercent=20 \
     -XX:G1MixedGCLiveThresholdPercent=90 \
-    -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
-    -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 \
+    -XX:G1RSetUpdatingPauseTimePercent=5 \
+    -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem \
+    -XX:MaxTenuringThreshold=1 -XX:+UseNUMA \
+    -XX:+AggressiveOpts \
     -Dcom.mojang.eula.agree=true \
     -Dlog4j2.formatMsgNoLookups=true \
+    -Djline.terminal=jline.UnsupportedTerminal \
+    -Dfile.encoding=UTF-8 \
     -jar server.jar nogui &
 
 MC_PID=$!
 
 # Wait for world generation
 echo "Waiting for world generation to complete..."
-sleep 45
+sleep 30
 
 # Verify Minecraft server is running
 if ! kill -0 $MC_PID 2>/dev/null; then
@@ -86,7 +102,6 @@ if ! kill -0 $MC_PID 2>/dev/null; then
 fi
 
 echo "Minecraft server started successfully"
-echo "World generation completed"
 echo "Both servers are now running"
 
 # Wait for both processes
