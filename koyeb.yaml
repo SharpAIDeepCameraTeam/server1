@@ -17,7 +17,7 @@ service:
     max: 1
   healthCheck:
     tcpSocket:
-      port: 25565
+      port: 25566
     initialDelaySeconds: 120
     periodSeconds: 30
     timeoutSeconds: 20
